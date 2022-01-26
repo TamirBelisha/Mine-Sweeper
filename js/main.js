@@ -3,9 +3,9 @@
 const MINE_IMG = '<img src="img/mine.png" />';
 const MARK_IMG = '<img src="img/mark.png" />';
 const EMOJI_IMG = '<img src="img/emoji.png" />';
-const EMOJI_LOSE_IMG = '<img src="img/emoji-lose.png" />'
-const EMOJI_WIN_IMG = '<img src="img/emoji-win.png" />'
-
+const EMOJI_LOSE_IMG = '<img src="img/emoji-lose.png" />';
+const EMOJI_WIN_IMG = '<img src="img/emoji-win.png" />';
+const HINT_IMG = `<img src="img/hint.png" onclick="toggleHint(this)" />`;
 var gBoard = [];
 var gLevel = {
     SIZE: 4,
@@ -17,13 +17,18 @@ var gGame = {
     markedCount: 0,
     secsPassed: 0
 }
+var isHintOn = false;
 var gTimerInterval;
 var minesLocations = [];
 var gameOver = false;
+var lives = 3;
+var hints = 3;
 var elEmojiDiv = document.querySelector('.emoji');
-
+var elLivesDiv = document.querySelector('.lives');
+var elLastHint;
 
 function initGame() {
+    clearInterval(gTimerInterval)
     gGame = {
         isOn: false,
         shownCount: 0,
@@ -35,10 +40,14 @@ function initGame() {
     milliSec = 0;
     sec = 0;
     minute = 0;
-    clearInterval(gTimerInterval)
+    lives = 3;
+    hints = 3;
+    isHintOn = false;
+    renderHints();
     elEmojiDiv.innerHTML = EMOJI_IMG;
+    elLivesDiv.innerText = '❤️ ❤️ ❤️';
     gBoard = buildBoard(gLevel.SIZE);
-    renderBoard(gBoard, '.board-div')
+    renderBoard(gBoard, '.board-div');
 }
 
 function buildBoard(size) {
@@ -104,10 +113,18 @@ function cellClicked(elCell, i, j) {
         setMinesNegsCount(gBoard);
         gTimerInterval = setInterval(timer, 100);
     }
+    if (isHintOn) {
+        revealHint(i, j);
+        elLastHint.classList.remove('.hinted')
+        isHintOn = false;
+        hints--;
+        renderHints()
+        return;
+    }
     checkGameOver();
     var cell = gBoard[i][j];
-    if (cell.isShown === true || cell.isMarked === true) return;
-    if (cell.isMine === true) {
+    if (cell.isShown || cell.isMarked) return;
+    if (cell.isMine && lives === 1) {
         elCell.classList.remove('hidden')
         elCell.innerHTML = MINE_IMG;
         revealMines();
@@ -115,7 +132,16 @@ function cellClicked(elCell, i, j) {
         gameOver = true;
         clearInterval(gTimerInterval);
         elEmojiDiv.innerHTML = EMOJI_LOSE_IMG;
+        elLivesDiv.innerText = '☠️';
         alert('You lost..')
+        return;
+    } else if (cell.isMine) {
+        elCell.classList.remove('hidden')
+        elCell.innerHTML = MINE_IMG;
+        cell.isShown = true;
+        gGame.markedCount++;
+        lives--;
+        elLivesDiv.innerText = (lives === 2) ? '❤️ ❤️' : '❤️';
         return;
     } else if (cell.minesAroundCount === 0) {
         revealNegs(i, j);
@@ -215,5 +241,60 @@ function gameLevel(level) {
             };
             initGame();
             break;
+    }
+}
+
+function renderHints() {
+    var elHintsDiv = document.querySelector('.hints');
+    var strHTML = ''
+    for (var i = 0; i < hints; i++) {
+        strHTML += HINT_IMG + ' '
+    }
+
+    if (hints === 0) strHTML += 'You ran out of hints..'
+    elHintsDiv.innerHTML = strHTML;
+}
+
+function revealHint(i, j) {
+    for (var x = (i - 1); x <= (i + 1); x++) {
+        for (var y = (j - 1); y <= (j + 1); y++) {
+            if (x < 0 || x > (gBoard.length - 1) || y < 0 || y > (gBoard[0].length - 1)) continue;
+            var currCell = gBoard[x][y];
+            var elCell = document.querySelector(`.cell-${x}-${y}`);
+            console.log('currCell', currCell);
+            console.log('elCell', elCell);
+            elCell.classList.remove('hidden');
+            if (currCell.isMine) {
+                elCell.innerHTML = MINE_IMG;
+            } else if (currCell.minesAroundCount === 0) {
+                elCell.innerText = '';
+            } else elCell.innerText = currCell.minesAroundCount;
+        }
+    }
+    console.log('reveal works');
+    setTimeout(hideHints, 1000, i, j);
+}
+
+function hideHints(i, j) {
+    for (var x = (i - 1); x <= (i + 1); x++) {
+        for (var y = (j - 1); y <= (j + 1); y++) {
+            if (x < 0 || x > (gBoard.length - 1) || y < 0 || y > (gBoard[0].length - 1)) continue;
+            var currCell = gBoard[x][y];
+            var elCell = document.querySelector(`.cell-${x}-${y}`);
+            elCell.classList.add('hidden');
+            elCell.innerHTML = '';
+        }
+    }
+    console.log('hide works');
+}
+
+function toggleHint(elHint) {
+    if (isHintOn) {
+        isHintOn = false;
+        elHint.classList.remove('hinted');
+    } else {
+        isHintOn = true;
+        elHint.classList.add('hinted');
+        elLastHint = elHint;
     }
 }
