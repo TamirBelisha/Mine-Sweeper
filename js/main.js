@@ -1,10 +1,10 @@
 'use strict';
 
-const MINE_IMG = '<img src="../img/mine.png" />';
-const MARK_IMG = '<img src="../img/mark.png" />';
-const EMOJI_IMG = '<img src="../img/emoji.png" />';
-const EMOJI_LOSE_IMG = '<img src="../img/emoji-lose.png" />'
-const EMOJI_WIN_IMG = '<img src="../img/emoji-win.png" />'
+const MINE_IMG = '<img src="img/mine.png" />';
+const MARK_IMG = '<img src="img/mark.png" />';
+const EMOJI_IMG = '<img src="img/emoji.png" />';
+const EMOJI_LOSE_IMG = '<img src="img/emoji-lose.png" />'
+const EMOJI_WIN_IMG = '<img src="img/emoji-win.png" />'
 
 var gBoard = [];
 var gLevel = {
