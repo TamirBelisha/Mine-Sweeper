@@ -131,15 +131,7 @@ function locateMines(board, amount, locationI, locationJ) {
 function cellClicked(elCell, i, j) {
     if (gameOver === true) return;
     if (isManuallyLocate === true) {
-        gBoard[i][j].isMine = true;
-        elCell.classList.add('safe');
-        manuallyMinesCounter--;
-        setTimeout(removeClassSafe, 3000, elCell);
-        if (manuallyMinesCounter === 0) {
-            isManuallyLocate = false;
-            elManuallyDiv.classList.remove('locating');
-
-        }
+        manuallyLocate(elCell, i, j)
         return;
     }
     if (gGame.isOn === false) {
@@ -395,7 +387,24 @@ function getSafeCells() {
     return safeCells;
 }
 
-function manuallyLocate() {
+function manuallyLocate(elCell, i, j) {
+    gBoard[i][j].isMine = true;
+    elCell.classList.add('safe');
+    manuallyMinesCounter--;
+    var obj = {
+        i: i,
+        j: j
+    }
+    minesLocations.push(obj)
+    console.log('minesLocations', minesLocations);
+    setTimeout(removeClassSafe, 3000, elCell);
+    if (manuallyMinesCounter === 0) {
+        isManuallyLocate = false;
+        elManuallyDiv.classList.remove('locating');
+    }
+}
+
+function manuallyLocator() {
     if (gGame.isOn) return;
     isManuallyLocate = true;
     elManuallyDiv.classList.add('locating');
