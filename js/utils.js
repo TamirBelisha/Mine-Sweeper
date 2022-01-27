@@ -30,13 +30,6 @@ function renderBoard(board, selector) {
     elContainer.innerHTML = strHTML;
 }
 
-// location such as: {i: 2, j: 7}
-function renderCell(i, j, value) {
-    // Select the elCell and set the value
-    var elCell = document.querySelector(`.cell-${i}-${j}`);
-    elCell.innerHTML = value;
-}
-
 //Random number include the max num
 function getRandomIntInclusive(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -53,16 +46,6 @@ function shuffle(items) {
         items[randIdx] = keep;
     }
     return items;
-}
-
-//return a random color name
-function getRandomColor() {
-    var letters = '0123456789ABCDEF';
-    var color = '#';
-    for (var i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
 }
 
 var milliSec = 0;
