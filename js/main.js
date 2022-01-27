@@ -190,7 +190,9 @@ function cellMarked(elCell, i, j) {
     if (gameOver === true) return;
     if (gGame.isOn === false) {
         gGame.isOn = true;
-        locateMines(gBoard, gLevel.MINES, i, j);
+        if (manuallyMinesCounter !== 0) {
+            locateMines(gBoard, gLevel.MINES, i, j);
+        }
         setMinesNegsCount(gBoard);
         gTimerInterval = setInterval(timer, 100);
     }
@@ -223,7 +225,7 @@ function revealNegs(i, j) {
             if (x < 0 || x > (gBoard.length - 1) || y < 0 || y > (gBoard[0].length - 1)) continue;
             var currCell = gBoard[x][y];
             var elCell = document.querySelector(`.cell-${x}-${y}`);
-            if (currCell.isMine === false && currCell.isShown === false) {
+            if (currCell.isMine === false && currCell.isShown === false && currCell.isMarked === false) {
                 elCell.classList.remove('hidden');
                 gGame.shownCount++;
                 currCell.isShown = true;
