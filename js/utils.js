@@ -12,12 +12,7 @@ function createMat(rows, cols) {
     }
     return mat
 }
-// var cell = {
-//         minesAroundCount: 0,
-//         isShown: false,
-//         isMine: false,
-//         isMarked: false
-//     }
+
 //Gets matrix and selector name to render the table in it.
 function renderBoard(board, selector) {
     var strHTML = '<table><tbody>';
@@ -36,9 +31,9 @@ function renderBoard(board, selector) {
 }
 
 // location such as: {i: 2, j: 7}
-function renderCell(location, value) {
+function renderCell(i, j, value) {
     // Select the elCell and set the value
-    var elCell = document.querySelector(`.cell-${location.i}-${location.j}`);
+    var elCell = document.querySelector(`.cell-${i}-${j}`);
     elCell.innerHTML = value;
 }
 

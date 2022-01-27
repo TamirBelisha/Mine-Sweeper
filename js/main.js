@@ -6,6 +6,7 @@ const EMOJI_IMG = '<img src="img/emoji.png" />';
 const EMOJI_LOSE_IMG = '<img src="img/emoji-lose.png" />';
 const EMOJI_WIN_IMG = '<img src="img/emoji-win.png" />';
 const HINT_IMG = `<img src="img/hint.png" onclick="toggleHint(this)" />`;
+
 var gBoard = [];
 var gLevel = {
     SIZE: 4,
@@ -25,10 +26,27 @@ var lives = 3;
 var hints = 3;
 var elEmojiDiv = document.querySelector('.emoji');
 var elLivesDiv = document.querySelector('.lives');
-var elLastHint;
+var elGameOverDiv = document.querySelector('.game-over');
+var elRemainingSafeClicks = document.querySelector('h3')
+var elManuallyDiv = document.querySelector('.manually-mines');
+var elLastHint = null;
+var safeClicks = 3;
+var isManuallyLocate = false
+var manuallyMinesCounter = gLevel.MINES;
+
 
 function initGame() {
+    resetValues();
     clearInterval(gTimerInterval)
+    gBoard = buildBoard(gLevel.SIZE);
+    renderBoard(gBoard, '.board-div');
+    elEmojiDiv.innerHTML = EMOJI_IMG;
+    elLivesDiv.innerText = '❤️ ❤️ ❤️';
+    elRemainingSafeClicks.innerText = 'Remaining clicks: 3';
+    renderHints();
+}
+
+function resetValues() {
     gGame = {
         isOn: false,
         shownCount: 0,
@@ -43,11 +61,10 @@ function initGame() {
     lives = 3;
     hints = 3;
     isHintOn = false;
-    renderHints();
-    elEmojiDiv.innerHTML = EMOJI_IMG;
-    elLivesDiv.innerText = '❤️ ❤️ ❤️';
-    gBoard = buildBoard(gLevel.SIZE);
-    renderBoard(gBoard, '.board-div');
+    elLastHint = null
+    safeClicks = 3
+    isManuallyLocate = false
+    manuallyMinesCounter = gLevel.MINES;
 }
 
 function buildBoard(size) {
@@ -85,18 +102,24 @@ function setMinesNegsCount(board) {
 }
 
 function locateMines(board, amount, locationI, locationJ) {
-    var lastLocation = {
+    var lastMineLocation = {
         i: null,
         j: null
     };
     for (var i = 0; i < amount; i++) {
         var x = getRandomIntInclusive(0, (board.length - 1));
         var y = getRandomIntInclusive(0, (board.length - 1));
-        if (lastLocation.x === x && lastLocation.y === y) x = getRandomIntInclusive(0, (board.length - 1));
-        if (x === locationI && y === locationJ) x = getRandomIntInclusive(0, (board.length - 1));
+        if (lastMineLocation.x === x && lastMineLocation.y === y) {
+            x = getRandomIntInclusive(0, (board.length - 1));
+            y = getRandomIntInclusive(0, (board.length - 1));
+        }
+        if (x === locationI && y === locationJ) {
+            x = getRandomIntInclusive(0, (board.length - 1));
+            y = getRandomIntInclusive(0, (board.length - 1));
+        }
         board[x][y].isMine = true;
-        lastLocation.i = x;
-        lastLocation.j = y;
+        lastMineLocation.i = x;
+        lastMineLocation.j = y;
         var obj = {
             i: x,
             j: y
@@ -107,21 +130,35 @@ function locateMines(board, amount, locationI, locationJ) {
 
 function cellClicked(elCell, i, j) {
     if (gameOver === true) return;
+    if (isManuallyLocate === true) {
+        gBoard[i][j].isMine = true;
+        elCell.classList.add('safe');
+        manuallyMinesCounter--;
+        setTimeout(removeClassSafe, 3000, elCell);
+        if (manuallyMinesCounter === 0) {
+            isManuallyLocate = false;
+            elManuallyDiv.classList.remove('locating');
+
+        }
+        return;
+    }
     if (gGame.isOn === false) {
         gGame.isOn = true;
-        locateMines(gBoard, gLevel.MINES, i, j);
+        if (manuallyMinesCounter !== 0) {
+            locateMines(gBoard, gLevel.MINES, i, j);
+        }
         setMinesNegsCount(gBoard);
         gTimerInterval = setInterval(timer, 100);
     }
     if (isHintOn) {
         revealHint(i, j);
         elLastHint.classList.remove('.hinted')
+        elLastHint = null;
         isHintOn = false;
         hints--;
         renderHints()
         return;
     }
-    checkGameOver();
     var cell = gBoard[i][j];
     if (cell.isShown || cell.isMarked) return;
     if (cell.isMine && lives === 1) {
@@ -131,9 +168,9 @@ function cellClicked(elCell, i, j) {
         gGame.isOn = false;
         gameOver = true;
         clearInterval(gTimerInterval);
-        elEmojiDiv.innerHTML = EMOJI_LOSE_IMG;
         elLivesDiv.innerText = '☠️';
-        alert('You lost..')
+        renderEmoji(false);
+        toggleGameOverDiv(false);
         return;
     } else if (cell.isMine) {
         elCell.classList.remove('hidden')
@@ -142,6 +179,7 @@ function cellClicked(elCell, i, j) {
         gGame.markedCount++;
         lives--;
         elLivesDiv.innerText = (lives === 2) ? '❤️ ❤️' : '❤️';
+        checkGameOver();
         return;
     } else if (cell.minesAroundCount === 0) {
         revealNegs(i, j);
@@ -199,6 +237,9 @@ function revealNegs(i, j) {
                 currCell.isShown = true;
                 var negs = currCell.minesAroundCount;
                 elCell.innerText = (negs === 0) ? '' : negs;
+                if (negs === 0) {
+                    revealNegs(x, y);
+                }
             }
         }
     }
@@ -211,8 +252,8 @@ function checkGameOver() {
         gGame.isOn = false;
         gameOver = true;
         clearInterval(gTimerInterval);
-        elEmojiDiv.innerHTML = EMOJI_WIN_IMG;
-        alert('Victory');
+        renderEmoji(true);
+        toggleGameOverDiv(true);
         return true;
     }
     return false;
@@ -271,7 +312,6 @@ function revealHint(i, j) {
             } else elCell.innerText = currCell.minesAroundCount;
         }
     }
-    console.log('reveal works');
     setTimeout(hideHints, 1000, i, j);
 }
 
@@ -285,16 +325,78 @@ function hideHints(i, j) {
             elCell.innerHTML = '';
         }
     }
-    console.log('hide works');
 }
 
 function toggleHint(elHint) {
-    if (isHintOn) {
+    if (isHintOn && elLastHint === elHint) {
+        elLastHint = null;
         isHintOn = false;
         elHint.classList.remove('hinted');
-    } else {
+    } else if (elLastHint === null) {
         isHintOn = true;
         elHint.classList.add('hinted');
         elLastHint = elHint;
     }
+}
+
+function toggleGameOverDiv(isVictory) {
+    elGameOverDiv.classList.remove('win');
+    elGameOverDiv.classList.remove('lose');
+    elGameOverDiv.classList.remove('animation-hide');
+    elGameOverDiv.classList.remove('animation');
+    if (isVictory) elGameOverDiv.classList.add('win');
+    else elGameOverDiv.classList.add('lose');
+    elGameOverDiv.classList.add('animation')
+    setTimeout(hideGameOverDiv, 1000)
+}
+
+function hideGameOverDiv() {
+    elGameOverDiv.classList.add('animation-hide');
+    elGameOverDiv.classList.remove('animation');
+}
+
+function renderEmoji(isVictory) {
+    elEmojiDiv.innerHTML = (isVictory) ? EMOJI_WIN_IMG : EMOJI_LOSE_IMG;
+    setTimeout(renderDefEmoji, 3000);
+}
+
+function renderDefEmoji() {
+    elEmojiDiv.innerHTML = EMOJI_IMG;
+}
+
+function safeClick() {
+    if (safeClicks <= 0) return;
+    var safeCells = getSafeCells();
+    var safeCell = safeCells.pop();
+    var elCell = document.querySelector(`.cell-${safeCell.i}-${safeCell.j}`);
+    elCell.classList.add('safe');
+    safeClicks--;
+    elRemainingSafeClicks.innerText = `Remaining clicks: ${safeClicks}`;
+    setTimeout(removeClassSafe, 3000, elCell);
+}
+
+function removeClassSafe(elCell) {
+    elCell.classList.remove('safe');
+}
+
+function getSafeCells() {
+    var safeCells = [];
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[0].length; j++) {
+            var currCell = gBoard[i][j];
+            var obj = {
+                i: i,
+                j: j
+            }
+            if (currCell.isMine === false && currCell.isShown === false) safeCells.push(obj);
+        }
+    }
+    shuffle(safeCells);
+    return safeCells;
+}
+
+function manuallyLocate() {
+    if (gGame.isOn) return;
+    isManuallyLocate = true;
+    elManuallyDiv.classList.add('locating');
 }

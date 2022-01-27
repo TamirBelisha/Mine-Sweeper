@@ -11,6 +11,7 @@
 
 <body onload="initGame()" oncontextmenu="return false;">
     <h1>Mine Sweeper</h1>
+    <h4>Easy: 2 mines | Medium: 12 mines | Hard 30 mines</h4>
     <div class="game-div">
         <div class="timer">Time : <span></span></div>
         <div class="lives">❤️ ❤️ ❤️</div>
@@ -23,7 +24,11 @@
         <div class="board-div">
         </div>
         <div class="hints"></div>
+        <div class="safe-clicks" onclick="safeClick()">Safe clicks</div>
+        <div class="manually-mines" onclick="manuallyLocate()">Manually locate mines</div>
+        <div class="game-over"></div>
     </div>
+    <h3>Remaining clicks: 3</h3>
     <script src="js/utils.js"></script>
     <script src="js/main.js"></script>
 </body>

@@ -9,7 +9,7 @@ body {
 .game-div {
     height: 700px;
     width: 600px;
-    background-color: #1b0802bd;
+    background-image: linear-gradient(to top, #1b0802, #1b08028f);
     margin: auto;
     border-radius: 30px;
     box-shadow: 5px 5px 5px 0px #000000, inset 4px 4px 15px 0px #000000, 5px 15px 18px 12px rgba(71, 24, 0, 0.74);
@@ -35,6 +35,7 @@ td {
     border: 1px solid #1b0802;
     width: 30px;
     height: 30px;
+    font-size: large;
 }
 
 img {
@@ -51,7 +52,7 @@ img {
 }
 
 .timer {
-    background-color: rgba(109, 109, 109, 0.767);
+    background-image: linear-gradient(to top, #555555, #55555570, #55555500);
     height: 60px;
     width: 150px;
     position: relative;
@@ -64,7 +65,7 @@ img {
 }
 
 .lives {
-    background-color: rgba(109, 109, 109, 0.767);
+    background-image: linear-gradient(to top, #555555, #55555570, #55555500);
     height: 60px;
     width: 150px;
     position: relative;
@@ -98,12 +99,49 @@ button {
 
 .hints {
     height: 50px;
-    width: 200px;
+    width: 180px;
     margin-top: 15px;
     margin-left: 15px;
     border-radius: 20px;
-    border: 2px solid #1b0802;
+    border: 2px solid #130501;
     line-height: 50px;
+}
+
+.safe-clicks {
+    height: 50px;
+    width: 180px;
+    border-radius: 20px;
+    border: 2px solid #130501;
+    line-height: 50px;
+    position: relative;
+    left: 210px;
+    bottom: 53px;
+    cursor: pointer;
+}
+
+.manually-mines {
+    height: 50px;
+    width: 180px;
+    border-radius: 20px;
+    border: 2px solid #130501;
+    line-height: 50px;
+    position: relative;
+    left: 407px;
+    bottom: 107px;
+    cursor: pointer;
+}
+
+.locating {
+    background-color: #a7432d50;
+}
+
+h3 {
+    margin-top: 5px;
+    display: inline-block;
+}
+
+h4 {
+    display: inline;
 }
 
 .hints img {
@@ -115,4 +153,82 @@ button {
 .hinted {
     border-radius: 15px;
     border: 1px solid white;
+}
+
+.game-over {
+    position: absolute;
+    width: 300px;
+    height: 150px;
+    border-radius: 20px;
+    border: 1px solid rgba(17, 17, 17, 0.863);
+    padding: 2px;
+    right: 41%;
+    top: 40%;
+    color: #ffffff;
+    display: grid;
+    place-content: center;
+    display: none;
+}
+
+.lose {
+    background: url("../img/game-over.jpg");
+    background-size: cover;
+}
+
+.win {
+    background: url("../img/win.jpg");
+    background-size: cover;
+}
+
+.animation {
+    display: block;
+    animation: myAnim 1s ease 0s 1 normal forwards;
+}
+
+.animation-hide {
+    animation: myAnimRev 1s ease 1s 1 reverse forwards;
+    display: block;
+}
+
+.safe {
+    background-color: rgba(1, 1, 17, 0.897);
+    animation: safeCell 2s ease 0s 2 normal forwards;
+}
+
+@keyframes myAnim {
+    0% {
+        display: none;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateX(-250px) rotate(-200deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) rotate(0deg);
+    }
+}
+
+@keyframes myAnimRev {
+    0% {
+        display: none;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateX(-250px) rotate(-200deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0) rotate(0deg);
+    }
+}
+
+@keyframes safeCell {
+    0%,
+    50%,
+    100% {
+        opacity: 1;
+    }
+    25%,
+    75% {
+        opacity: 0;
+    }
 }
