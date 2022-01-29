@@ -210,6 +210,14 @@ h4 {
     animation: safeCell 2s ease 0s 2 normal forwards;
 }
 
+.footer {
+    background-image: linear-gradient(to top, #1b0802, #1b08028f);
+    height: 30px;
+    line-height: 30px;
+    margin-top: 12px;
+    box-shadow: 5px 5px 5px 0px #000000, inset 4px 4px 15px 0px #000000, 5px 15px 18px 12px rgba(71, 24, 0, 0.74);
+}
+
 @keyframes myAnim {
     0% {
         display: none;
