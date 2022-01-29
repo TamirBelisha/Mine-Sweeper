@@ -131,6 +131,21 @@ button {
     cursor: pointer;
 }
 
+.boom {
+    height: 50px;
+    width: 180px;
+    border-radius: 20px;
+    background-image: linear-gradient(to top, #2e0f07, #3a160ccb);
+    border: 2px solid #130501;
+    line-height: 50px;
+    cursor: pointer;
+    transform: rotate(270deg);
+    position: absolute;
+    left: 418px;
+    top: 300px;
+    letter-spacing: 2px;
+}
+
 .locating {
     background-color: #a7432d50;
 }

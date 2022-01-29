@@ -33,6 +33,7 @@ var elLastHint = null;
 var safeClicks = 3;
 var isManuallyLocate = false
 var manuallyMinesCounter = gLevel.MINES;
+var is7Boom = false;
 
 
 function initGame() {
@@ -65,6 +66,7 @@ function resetValues() {
     safeClicks = 3
     isManuallyLocate = false
     manuallyMinesCounter = gLevel.MINES;
+    is7Boom = false;
 }
 
 function buildBoard(size) {
@@ -136,7 +138,7 @@ function cellClicked(elCell, i, j) {
     }
     if (gGame.isOn === false) {
         gGame.isOn = true;
-        if (manuallyMinesCounter !== 0) {
+        if (manuallyMinesCounter !== 0 && is7Boom === false) {
             locateMines(gBoard, gLevel.MINES, i, j);
         }
         setMinesNegsCount(gBoard);
@@ -190,7 +192,7 @@ function cellMarked(elCell, i, j) {
     if (gameOver === true) return;
     if (gGame.isOn === false) {
         gGame.isOn = true;
-        if (manuallyMinesCounter !== 0) {
+        if (manuallyMinesCounter !== 0 && is7Boom === false) {
             locateMines(gBoard, gLevel.MINES, i, j);
         }
         setMinesNegsCount(gBoard);
@@ -315,6 +317,7 @@ function hideHints(i, j) {
             if (x < 0 || x > (gBoard.length - 1) || y < 0 || y > (gBoard[0].length - 1)) continue;
             var currCell = gBoard[x][y];
             var elCell = document.querySelector(`.cell-${x}-${y}`);
+            if (currCell.isShown === true) continue;
             elCell.classList.add('hidden');
             elCell.innerHTML = '';
         }
@@ -410,4 +413,24 @@ function manuallyLocator() {
     if (gGame.isOn) return;
     isManuallyLocate = true;
     elManuallyDiv.classList.add('locating');
+}
+
+function get7BoomMines() {
+    if (gGame.isOn === true) return;
+    var counter = 0;
+    for (var i = 0; i < gBoard.length; i++) {
+        for (var j = 0; j < gBoard[0].length; j++) {
+            var currCell = gBoard[i][j];
+            var obj = {
+                i: i,
+                j: j
+            }
+            if ((counter % 7) === 0 && counter > 0 || (counter % 10) === 7 && counter > 0) {
+                currCell.isMine = true;
+                minesLocations.push(obj);
+            }
+            counter++
+        }
+    }
+    is7Boom = true;
 }
